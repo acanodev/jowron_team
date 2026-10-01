@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el 
   const infoPartida = document.querySelector("#infoPartida");
 
   // --------- Objecte Jugador ---------
-  const jugador = new Nau({ x: 100, y: 300 }, 150, 100);
+  const jugador = new Jugador({ x: 100, y: 300 }, 150, 100);
   jugador.elementHTML.classList.add("nau", "jugador");
   pantalla.append(jugador.elementHTML);
 
@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el 
   elementVides.innerHTML = `Vides: 2`;
   infoPartida.append(elementVides);
 
+  // Event listener amb arrow function
   window.addEventListener("keydown", (e) => {
     const estilsPantalla = window.getComputedStyle(pantalla);
     const maxAltPantalla = parseFloat(estilsPantalla.height);

@@ -20,7 +20,7 @@ class Entitat {
   }
 }
 
-class Nau extends Entitat {
+class Jugador extends Entitat {
   // creas una classe a a partir de una clase existente (Hereda las funciones anteriores)
   moureAmunt() {
     if (this.y > 0) { //limit superior
@@ -38,5 +38,13 @@ class Nau extends Entitat {
       this.y = newY;
       this.elementHTML.style.top = this.y + "px"; // el element fa que es mogui avall
     }
+  }
+}
+
+class Enemic extends Entitat {
+  constructor(posicio = { x: 500, y: 200 }, ample = 50, alt = 50, velocitat = 1, punts = 1) {
+    super(posicio, ample, alt);
+    this.velocitat = velocitat;
+    this.punts = punts;
   }
 }
