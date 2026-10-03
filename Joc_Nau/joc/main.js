@@ -1,7 +1,12 @@
-document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el codigo cuando los elementos el DOM esten totalmente cargado.
+;document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el codigo cuando los elementos el DOM esten totalmente cargado.
   // --------- Pantalla del Joc ---------
   const pantalla = document.querySelector("#pantalla"); // el # es per referirse a un ID del html (busca el element de # pantalla i sera la teua pantalla)
   const infoPartida = document.querySelector("#infoPartida");
+  const estilsPantalla = window.getComputedStyle(pantalla);
+  const maxPantallaWidth = parseFloat(estilsPantalla.width);
+  const maxAltPantalla = parseFloat(estilsPantalla.height);
+
+  console.log("Pantalla Widht:" + maxPantallaWidth);
 
   // --------- Objecte Jugador ---------
   const jugador = new Jugador({ x: 100, y: 300 }, 150, 100);
@@ -9,9 +14,22 @@ document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el 
   pantalla.append(jugador.elementHTML);
 
   // --------- Objecte Enemic ---------
-  const enemic = new Entitat({ x: 500, y: 200 }, 75, 75);
-  enemic.elementHTML.classList.add("nau", "enemic");
-  pantalla.append(enemic.elementHTML);
+  
+  let enemic;
+  let enemics = [];
+
+  for (let i = 0; i < gameConf.maxEnemics - 1; i++) {
+    enemic = new Enemic({ x: maxPantallaWidth, y: getRandomNumber(0, maxAltPantalla) }, 75, 75, 10, 10, maxPantallaWidth, maxAltPantalla);
+    enemic.elementHTML.classList.add("nau", "enemic");
+    enemics.push(enemic);
+  }
+
+  enemics.forEach(e => {
+    setTimeout(() => {
+      pantalla.append(e.elementHTML);
+      e.moure();
+    }, gameConf.intervalAparicioMs);
+  });
 
   // ------- Objecte asteroide -------
   const asteroides = [];
@@ -36,14 +54,11 @@ document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el 
   infoPartida.append(elementPunts);
   elementDerribats.innerHTML = `Kills: 12`;
   infoPartida.append(elementDerribats);
-  elementVides.innerHTML = `Vides: 2`;
+  elementVides.innerHTML = `Vides: 3`;
   infoPartida.append(elementVides);
 
   // Event listener amb arrow function
   window.addEventListener("keydown", (e) => {
-    const estilsPantalla = window.getComputedStyle(pantalla);
-    const maxAltPantalla = parseFloat(estilsPantalla.height);
-
     if (e.key === "ArrowUp") {
       jugador.moureAmunt();
     }
@@ -53,3 +68,7 @@ document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el 
     }
   });
 });
+
+function getRandomNumber(min, max) {
+  return Math.random() * (max - min) + min;
+}
