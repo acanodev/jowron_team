@@ -23,7 +23,8 @@ class Entitat {
 class Jugador extends Entitat {
   // creas una classe a a partir de una clase existente (Hereda las funciones anteriores)
   moureAmunt() {
-    if (this.y > 0) { //limit superior
+    if (this.y > 0) {
+      //limit superior
       //funcio moureamunt (inventat)
       let newY = this.y - 10; // Calcula la nova posició de Y per pujar l'element amunt.
       // Propietat top negativa puja l'element amunt del DOM.
@@ -32,8 +33,9 @@ class Jugador extends Entitat {
     }
   }
 
-  moureAvall(pantallaHeight) { // limit inferior?
-    if (this.y < (pantallaHeight - this.alt)) {
+  moureAvall(pantallaHeight) {
+    // limit inferior
+    if (this.y < pantallaHeight - this.alt) {
       let newY = this.y + 10;
       this.y = newY;
       this.elementHTML.style.top = this.y + "px"; // el element fa que es mogui avall
@@ -42,9 +44,26 @@ class Jugador extends Entitat {
 }
 
 class Enemic extends Entitat {
-  constructor(posicio = { x: 500, y: 200 }, ample = 50, alt = 50, velocitat = 1, punts = 1) {
+  constructor(
+    posicio = { x: 500, y: 200 },
+    ample = 50,
+    alt = 50,
+    velocitat = 1,
+    punts = 1,
+    pantallaWidth,
+    pantallaHeight,
+  ) {
     super(posicio, ample, alt);
     this.velocitat = velocitat;
     this.punts = punts;
+    this.pantallaWidth = pantallaWidth;
+    this.pantallaHeight = pantallaHeight;
+  }
+
+  moure() {
+    setInterval(() => {
+      this.x -= 10;
+      this.elementHTML.style.left = this.x + "px";
+    }, 200);
   }
 }
