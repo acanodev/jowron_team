@@ -62,8 +62,11 @@ class Enemic extends Entitat {
 
   moure() {
     setInterval(() => {
-      this.x -= 10;
+      this.x -= this.velocitat;
       this.elementHTML.style.left = this.x + "px";
+      if (this.x < -(this.ample)) {
+        this.elementHTML.remove();
+      }
     }, 200);
   }
 }
