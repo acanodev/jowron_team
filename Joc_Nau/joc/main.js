@@ -1,4 +1,5 @@
-;document.addEventListener("DOMContentLoaded", () => { // Recomendable cargar el codigo cuando los elementos el DOM esten totalmente cargado.
+document.addEventListener("DOMContentLoaded", () => {
+  // Recomendable cargar el codigo cuando los elementos el DOM esten totalmente cargado.
   // --------- Pantalla del Joc ---------
   const pantalla = document.querySelector("#pantalla"); // el # es per referirse a un ID del html (busca el element de # pantalla i sera la teua pantalla)
   const infoPartida = document.querySelector("#infoPartida");
@@ -6,29 +7,45 @@
   const maxPantallaWidth = parseFloat(estilsPantalla.width);
   const maxAltPantalla = parseFloat(estilsPantalla.height);
 
-  console.log("Pantalla Widht:" + maxPantallaWidth);
-
   // --------- Objecte Jugador ---------
-  const jugador = new Jugador({ x: 100, y: 300 }, 150, 100);
+  const jugador = new Jugador(
+    { x: 100, y: 300 },
+    gameConf.ampleJugador,
+    gameConf.altJugador,
+  );
   jugador.elementHTML.classList.add("nau", "jugador");
   pantalla.append(jugador.elementHTML);
 
-  // --------- Objecte Enemic ---------
-  
+  // --------- Objecte i llista Enemic ---------
+
   let enemic;
   let enemics = [];
 
-  for (let i = 0; i < gameConf.maxEnemics - 1; i++) {
-    enemic = new Enemic({ x: maxPantallaWidth, y: getRandomNumber(0, maxAltPantalla) }, 75, 75, 10, 10, maxPantallaWidth, maxAltPantalla);
+  for (let i = 0; i < gameConf.maxEnemics; i++) {
+    enemic = new Enemic(
+      {
+        x: maxPantallaWidth,
+        y: getRandomNumber(0, maxAltPantalla - gameConf.altEnemics),
+      },
+      gameConf.ampleEnemics,
+      gameConf.altEnemics,
+      gameConf.velocitatEnemics,
+      gameConf.puntsPerEnemic,
+      maxPantallaWidth,
+      maxAltPantalla,
+    );
     enemic.elementHTML.classList.add("nau", "enemic");
     enemics.push(enemic);
   }
 
-  enemics.forEach(e => {
-    setTimeout(() => {
-      pantalla.append(e.elementHTML);
-      e.moure();
-    }, gameConf.intervalAparicioMs);
+  enemics.forEach((e, i) => {
+    setTimeout(
+      () => {
+        pantalla.append(e.elementHTML);
+        e.moure();
+      },
+      gameConf.intervalAparicioMs * (i + 1),
+    ); // Fraccionem l'interval d'aparició amb les iteracions de forEach per tal de que no surtin tots els enemics de cop, per exemple el primer surt al cap de 5 segons i el segon després de 10 segons.
   });
 
   // ------- Objecte asteroide -------
