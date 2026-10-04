@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", () => {
     gameConf.altJugador,
     gameConf.velocitatJugador,
     gameConf.maxVides,
+    gameConf.puntsJugador,
+    gameConf.killsJugador,
   );
   jugador.elementHTML.classList.add("nau", "jugador");
   pantalla.append(jugador.elementHTML);
@@ -21,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --------- Objecte i llista Enemic ---------
 
   let enemic;
-  let enemics = [];
+  const enemics = [];
 
   for (let i = 0; i < gameConf.maxEnemics; i++) {
     enemic = new Enemic(
@@ -45,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
       () => {
         pantalla.append(e.elementHTML);
         e.moure(perdreVida);
-        console.log(jugador.vides);
       },
       gameConf.intervalAparicioMs * (i + 1),
     ); // Fraccionem l'interval d'aparició amb les iteracions de forEach per tal de que no surtin tots els enemics de cop, per exemple el primer surt al cap de 5 segons i el segon després de 10 segons.
@@ -70,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   asteroides.forEach((a) => {
-    pantalla.append(a.elementHTML);
     a.moure();
   });
 
@@ -83,11 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Es manté perquè en activitats posteriors explotarem aquesta vulnerabilitat.
   elementNom.innerHTML = `Jugador: ${gameConf.nomJugador}`;
   infoPartida.append(elementNom);
-  elementPunts.innerHTML = `Punts: ${gameConf.puntsJugador}`;
+  elementPunts.innerHTML = `Punts: ${jugador.punts}`;
   infoPartida.append(elementPunts);
-  elementDerribats.innerHTML = `Kills: ${gameConf.killsJugador}`;
+  elementDerribats.innerHTML = `Kills: ${jugador.kills}`;
   infoPartida.append(elementDerribats);
-  elementVides.innerHTML = `Vides: ${gameConf.maxVides}`;
+  elementVides.innerHTML = `Vides: ${jugador.vides}`;
   infoPartida.append(elementVides);
 
   // Event listener amb arrow function
@@ -101,15 +101,51 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  /**
+   * Retorna un número aleatori a partir d'un mínim i un màxim.
+   */
   function getRandomNumber(min, max) {
     return Math.random() * (max - min) + min;
   }
 
+  /**
+   * Actualitza la informació de la partida.
+   */
+  function actualitzarInfo() {
+    elementPunts.innerHTML = `Punts: ${jugador.punts}`;
+    elementDerribats.innerHTML = `Kills: ${jugador.kills}`;
+    elementVides.innerHTML = `Vides: ${jugador.vides}`;
+  }
+
+  /**
+   * Controla com el jugador perd vides quan els enemics arriben a l'esquerra
+   * de la pantalla i desapareixen.
+   */
   function perdreVida() {
     jugador.vides--;
+    actualitzarInfo();
     if (jugador.vides <= 0) {
       alert("Game over!");
       window.location.reload();
     }
   }
+
+  function detectarCollisions() {
+    enemics.forEach((e) => {
+      if (jugador.collisiona(e) && e.elementHTML.isConnected) {
+        e.destruir();
+        jugador.kills++;
+        jugador.punts += e.punts;
+      }
+    });
+
+    actualitzarInfo();
+
+    if (jugador.punts >= gameConf.maxPunts) {
+      alert(`Nivell superat! Punts: ${jugador.punts}`);
+      window.location.reload();
+    }
+  }
+
+  setInterval(detectarCollisions, 100);
 });
