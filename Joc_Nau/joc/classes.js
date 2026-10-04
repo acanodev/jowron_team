@@ -21,7 +21,28 @@ class Entitat {
   }
 
   esFora() {
-    return this.x < -(this.ample);
+    return this.x < -this.ample;
+  }
+
+  /**
+   * Col·lisiona amb una altre entitat si:
+   *
+   * - La vora esquerra (this.x, recordem que modifica la propietat CSS left)
+   * està més a l'esquerra que la vora dreta de l'altra entitat.
+   *
+   * - La vora dreta està més a la dreta que la vora esquerra de l'altra entitat.
+   *
+   * - La vora superior està més a dalt que la vora inferior de l'altra entitat.
+   *
+   * - La vora inferior està més avall que la vora superior de l'altra entitat
+   */
+  collisiona(altraEntitat) {
+    return (
+      this.x < altraEntitat.x + altraEntitat.ample &&
+      this.x + this.ample > altraEntitat.x &&
+      this.y < altraEntitat.y + altraEntitat.alt &&
+      this.y + this.alt > altraEntitat.y
+    );
   }
 }
 
@@ -32,9 +53,13 @@ class Jugador extends Entitat {
     alt = 100,
     velocitat = 1,
     vides = 3,
+    punts = 0,
+    kills = 0,
   ) {
     super(posicio, ample, alt, velocitat);
     this.vides = vides;
+    this.punts = punts;
+    this.kills = kills;
   }
   // creas una classe a a partir de una clase existente (Hereda las funciones anteriores)
   moureAmunt() {
@@ -74,17 +99,23 @@ class Enemic extends Entitat {
     this.pantallaHeight = pantallaHeight;
   }
 
-  moure(accioDesaparicio) { // El paràmetre serà una funció de callback que executarà quan l'enemic desapareixi de la pantalla.
-    this.interval = setInterval(() => { // Assigna una id propia a l'interval executat per cada enemic.
+  moure(accioDesaparicio) {
+    // El paràmetre serà una funció de callback que executarà quan l'enemic desapareixi de la pantalla.
+    this.interval = setInterval(() => {
+      // Assigna una id propia a l'interval executat per cada enemic.
       this.x -= this.velocitat;
       this.elementHTML.style.left = this.x + "px";
       if (this.esFora()) {
-        clearInterval(this.interval); // Netejem l'interval per evitar eliminar el div i mantenir intervals actius.
-        // Ens servirà també per notificar quan el jugador perd una vida.
-        this.elementHTML.remove();
+        this.destruir();
         accioDesaparicio?.(); // Executa l'acció de desaparició, treu vides al jugador.
       }
     }, 100);
+  }
+
+  destruir() {
+    clearInterval(this.interval); // Netejem l'interval per evitar eliminar el div i mantenir intervals actius.
+    // Ens servirà també per notificar quan el jugador perd una vida.
+    this.elementHTML.remove();
   }
 }
 
@@ -94,13 +125,13 @@ class Asteroide extends Entitat {
     ample = 50,
     alt = 50,
     velocitat = 1,
-    pantallaWidth
+    pantallaWidth,
   ) {
     super(posicio, ample, alt, velocitat);
     this.pantallaWidth = pantallaWidth;
   }
 
-  moure() { 
+  moure() {
     setInterval(() => {
       this.x -= this.velocitat;
       this.elementHTML.style.left = this.x + "px";
