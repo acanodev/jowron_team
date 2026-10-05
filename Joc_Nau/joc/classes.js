@@ -1,11 +1,12 @@
 // --------- Classe Base ---------
 class Entitat {
-  constructor(posicio = { x: 0, y: 0 }, ample = 50, alt = 50, velocitat = 1) {
+  constructor(posicio = { x: 0, y: 0 }, ample = 50, alt = 50, velocitat = 1, fotogrames = 10) {
     this.x = posicio.x;
     this.y = posicio.y;
     this.ample = ample;
     this.alt = alt;
     this.velocitat = velocitat;
+    this.fotogrames = fotogrames;
     //Crear l'element HTML
     this.elementHTML = document.createElement("div");
     this.elementHTML.style.left = this.x + "px";
@@ -92,8 +93,9 @@ class Enemic extends Entitat {
     punts = 1,
     pantallaWidth,
     pantallaHeight,
+    fotogrames = 10,
   ) {
-    super(posicio, ample, alt, velocitat);
+    super(posicio, ample, alt, velocitat, fotogrames);
     this.punts = punts;
     this.pantallaWidth = pantallaWidth;
     this.pantallaHeight = pantallaHeight;
@@ -109,7 +111,7 @@ class Enemic extends Entitat {
         this.destruir();
         accioDesaparicio?.(); // Executa l'acció de desaparició, treu vides al jugador.
       }
-    }, 100);
+    }, this.fotogrames);
   }
 
   destruir() {
@@ -126,8 +128,9 @@ class Asteroide extends Entitat {
     alt = 50,
     velocitat = 1,
     pantallaWidth,
+    fotogrames = 10,
   ) {
-    super(posicio, ample, alt, velocitat);
+    super(posicio, ample, alt, velocitat, fotogrames);
     this.pantallaWidth = pantallaWidth;
   }
 
@@ -139,6 +142,6 @@ class Asteroide extends Entitat {
         this.x = this.pantallaWidth;
         this.elementHTML.style.left = this.x + "px";
       }
-    }, 100);
+    }, this.fotogrames);
   }
 }

@@ -1,7 +1,7 @@
 const gameConf = {
   "nivell": 1,
   "maxPunts": 1000,
-  "velocitatEnemics": 10,
+  "velocitatEnemics": 5,
   "intervalAparicioMs": 5000,
   "puntsPerEnemic": 100,
   "maxEnemics": 100,
@@ -17,3 +17,6 @@ const gameConf = {
   "maxAsteroides": 100,
   "velocitatAsteroides": 10,
 }
+
+gameConf["fotogramesEnemics"] = gameConf.velocitatEnemics * 10;
+gameConf["fotogramesAteroides"] = gameConf.velocitatAsteroides * 10;

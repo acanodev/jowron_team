@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gameConf.puntsPerEnemic,
       maxPantallaWidth,
       maxAltPantalla,
+      gameConf.fotogramesEnemic,
     );
     enemic.elementHTML.classList.add("nau", "enemic");
     enemics.push(enemic);
@@ -64,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       5,
       gameConf.velocitatAsteroides,
       maxPantallaWidth,
+      gameConf.fotogramesAsteroides,
     );
     asteroide.elementHTML.classList.add("asteroide");
     pantalla.append(asteroide.elementHTML);
