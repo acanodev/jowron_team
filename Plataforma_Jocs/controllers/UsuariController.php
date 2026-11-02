@@ -51,11 +51,28 @@ class UsuariController
         if ($_POST) {
             // VULNERABILITAT: Sense protecció CSRF i validació insuficient
             $usuariId = Session::get('usuari_id');
+            $usuari = $this->usuariModel->obtenirUsuari($usuariId);
+
             $nomComplet = $_POST['nom_complet'] ?? '';
             $email = $_POST['email'] ?? '';
+            $avatar = $_POST['avatar'] ?? '';
+            
+            if(!empty($usuari['avatar'])) {
+                // Eliminar l'avatar anterior si existeix
+                unlink($usuari['avatar']);
+            }
+
+            // VULNERABILITAT: Upload insegur
+            $info = pathinfo($_FILES['avatar']['name']);
+            $ext = $info['extension'];
+            $newname = "$usuariId." . $ext;
+
+            // Ruta relativa del directori images
+            $target = 'public/uploads/' . $newname;
+            move_uploaded_file($_FILES['avatar']['tmp_name'], $target);
 
             // VULNERABILITAT: SQL Injection
-            $sql = "UPDATE usuaris SET nom_complet = '$nomComplet', email = '$email' WHERE id = $usuariId";
+            $sql = "UPDATE usuaris SET nom_complet = '$nomComplet', email = '$email', avatar = '$target' WHERE id = $usuariId";
             $this->usuariModel->pdo->exec($sql);
 
             // VULNERABILITAT: Open Redirect
