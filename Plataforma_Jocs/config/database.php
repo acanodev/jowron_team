@@ -24,7 +24,7 @@ class Database
                 // Si usem localhost i el socket MariaDB esta disponible, fem servir el socket
                 $dsn = ($h === 'localhost' && file_exists('/var/run/mysqld/mysqld.sock'))
                     ? "mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=" . self::$dbname . ";charset=utf8mb4"
-                    : "mysql:host=" . $h . ";port=3306;dbname=" . self::$dbname . ";charset=utf8mb4";
+                    : "mysql:host=" . $h . ";port=3307;dbname=" . self::$dbname . ";charset=utf8mb4";
 
                 $pdo = new PDO(
                     $dsn,

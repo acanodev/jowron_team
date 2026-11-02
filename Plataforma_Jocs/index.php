@@ -28,6 +28,7 @@ $router->post('/guardar-puntuacio', 'JocController', 'guardarPuntuacio');
 // Rutes d'usuari
 $router->get('/perfil', 'UsuariController', 'perfil');
 $router->get('/ranking', 'UsuariController', 'ranking');
+$router->post('/actualitzar-perfil', 'UsuariController', 'actualitzarPerfil');
 
 // REP PETICIONS DE L'USUARI: Detecta el mètode HTTP i la ruta i redirigeix al controlador corresponent, sinó mostra un error.
 $router->dispatch();
