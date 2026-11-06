@@ -82,7 +82,7 @@ require 'views/layout/header.php';
         <div class="avatar-container">
             <?php if (!empty($usuari['avatar'])): ?>
                 <h4>Imatge actual:</h4>
-                <img class="perfil-avatar" src="../../<?php echo $usuari['avatar']; ?>" alt="Imatge de perfil" style="max-width: 150px; height: auto;">
+                <img class="perfil-avatar" src="../../<?php echo $usuari['avatar']; ?>" alt="Imatge de perfil">
             <?php else: ?>
                 <p>Sense imatge de perfil.</p>
             <?php endif; ?>
