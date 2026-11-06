@@ -78,12 +78,15 @@ require 'views/layout/header.php';
 
             <button type="submit">Desar canvis</button>
         </form>
-
-        <?php if (!empty($usuari['avatar'])): ?>
-            <img class="perfil-avatar" src="<?php echo $usuari['avatar']; ?>" alt="Imatge de perfil" style="max-width: 150px; height: auto;">
-        <?php else: ?>
-            <p>Sense imatge de perfil.</p>
-        <?php endif; ?>
+        
+        <div class="avatar-container">
+            <?php if (!empty($usuari['avatar'])): ?>
+                <h4>Imatge actual:</h4>
+                <img class="perfil-avatar" src="../../<?php echo $usuari['avatar']; ?>" alt="Imatge de perfil" style="max-width: 150px; height: auto;">
+            <?php else: ?>
+                <p>Sense imatge de perfil.</p>
+            <?php endif; ?>
+        </div>
     </section>
 
     <!-- Historial de partides -->
