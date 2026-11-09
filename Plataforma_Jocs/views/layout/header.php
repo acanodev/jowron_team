@@ -12,7 +12,7 @@
     <header>
         <nav>
             <div class="logo">
-                <h2>Gamers.cat</h2>
+                <h2>ArJol.cat</h2>
             </div>
             <div class="menu">
                 <a href="/mvc/?route=/">Inici</a>
