@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gameConf.puntsPerEnemic,
       maxPantallaWidth,
       maxAltPantalla,
-      gameConf.fotogramesEnemic,
+      gameConf.fotogramesEnemics,
     );
     enemic.elementHTML.classList.add("nau", "enemic");
     enemics.push(enemic);

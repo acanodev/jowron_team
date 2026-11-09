@@ -19,4 +19,4 @@ const gameConf = {
 }
 
 gameConf["fotogramesEnemics"] = gameConf.velocitatEnemics * 10;
-gameConf["fotogramesAteroides"] = gameConf.velocitatAsteroides * 10;
+gameConf["fotogramesAsteroides"] = gameConf.velocitatAsteroides * 10;
