@@ -12,8 +12,6 @@
 require 'views/layout/header.php';
 ?>
 
-<link rel="stylesheet" href="/mvc/public/css/perfil.css">
-
 <div class="perfil-container">
 
     <h1>El meu perfil</h1>
@@ -80,6 +78,15 @@ require 'views/layout/header.php';
 
             <button type="submit">Desar canvis</button>
         </form>
+        
+        <div class="avatar-container">
+            <?php if (!empty($usuari['avatar'])): ?>
+                <h4>Imatge actual:</h4>
+                <img class="perfil-avatar" src="../../<?php echo $usuari['avatar']; ?>" alt="Imatge de perfil">
+            <?php else: ?>
+                <p>Sense imatge de perfil.</p>
+            <?php endif; ?>
+        </div>
     </section>
 
     <!-- Historial de partides -->
