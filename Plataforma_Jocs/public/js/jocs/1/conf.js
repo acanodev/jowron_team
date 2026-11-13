@@ -1,4 +1,4 @@
-const gameConf = {
+const defaultConf = {
   "nivell": 1,
   "maxPunts": 1000,
   "velocitatEnemics": 5,
@@ -16,7 +16,34 @@ const gameConf = {
   "maxVides": 3,
   "maxAsteroides": 100,
   "velocitatAsteroides": 10,
-}
+};
+
+const loadedConf = (await getConfFromDB()) ?? {};
+
+export const gameConf = {
+  ...defaultConf,
+  "nivell": loadedConf.nivell ?? defaultConf.nivell,
+  "maxPunts": loadedConf.puntsNivell ?? defaultConf.maxPunts,
+  "velocitatEnemics": loadedConf.velocitatEnemics ?? defaultConf.velocitatEnemics,
+  "maxEnemics": loadedConf.maxEnemics ?? defaultConf.maxEnemics,
+  "maxVides": loadedConf.vides ?? defaultConf.maxVides,
+};
 
 gameConf["fotogramesEnemics"] = gameConf.velocitatEnemics * 10;
 gameConf["fotogramesAsteroides"] = gameConf.velocitatAsteroides * 10;
+
+async function getConfFromDB() {
+  try {
+    const response = await fetch('../../../../api/api.php/jocs/1/nivells/1');
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    return await response.json();
+
+  } catch (e) {
+    console.error("No s'ha pogut carregar la configuració del nivell:", e);
+    return null;
+  }
+}

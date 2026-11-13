@@ -15,8 +15,7 @@
   <body>
     <div id="pantalla"></div>
     <div id="infoPartida"></div>
-    <script type="text/javascript" src="./conf.js"></script>
     <script src="./classes.js" type="text/javascript"></script>
-    <script src="./main.js" type="text/javascript"></script>
+    <script src="./main.js" type="module"></script>
   </body>
 </html>
