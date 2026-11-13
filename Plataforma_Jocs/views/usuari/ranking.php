@@ -11,8 +11,8 @@ $avatarHtml = function ($r, $cls) {
     $inicial = substr($r['nom_usuari'], 0, 1);
     if (!empty($r['avatar'])) {
         return '<img class="' . $cls . '" src="../../' . $r['avatar'] . '" alt="" '
-             . 'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
-             . '<span class="' . $cls . ' rank-fallback">' . $inicial . '</span>';
+            . 'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
+            . '<span class="' . $cls . ' rank-fallback">' . $inicial . '</span>';
     }
     return '<span class="' . $cls . ' rank-fallback rank-fallback-on">' . $inicial . '</span>';
 };
