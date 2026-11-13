@@ -1,5 +1,12 @@
 import { gameConf } from "./conf.js";
 
+const appBaseUrl = new URL("../../../../", document.baseURI);
+const progressUrl = new URL("?route=/guardar-puntuacio", appBaseUrl).href;
+const gamesListUrl = new URL("?route=/jocs", appBaseUrl).href;
+
+let nivellFinalitzat = false;
+const iniciPartida = Date.now();
+
 // --------- Pantalla del Joc ---------
 const pantalla = document.querySelector("#pantalla"); // el # es per referirse a un ID del html (busca el element de # pantalla i sera la teua pantalla)
 const infoPartida = document.querySelector("#infoPartida");
@@ -78,6 +85,7 @@ asteroides.forEach((a) => {
 
 // ------- Informació de la partida -------
 const elementNom = document.createElement("p");
+const elementNivell = document.createElement("p");
 const elementPunts = document.createElement("p");
 const elementDerribats = document.createElement("p");
 const elementVides = document.createElement("p");
@@ -85,6 +93,8 @@ const elementVides = document.createElement("p");
 // Es manté perquè en activitats posteriors explotarem aquesta vulnerabilitat.
 elementNom.innerHTML = `Jugador: ${gameConf.nomJugador}`;
 infoPartida.append(elementNom);
+elementNivell.innerHTML = `Nivell: ${gameConf.nivell}/${gameConf.totalNivells}`;
+infoPartida.append(elementNivell);
 elementPunts.innerHTML = `Punts: ${jugador.punts}`;
 infoPartida.append(elementPunts);
 elementDerribats.innerHTML = `Kills: ${jugador.kills}`;
@@ -127,7 +137,52 @@ function perdreVida() {
   jugador.vides--;
   actualitzarInfo();
   if (jugador.vides <= 0) {
+    nivellFinalitzat = true;
+    clearInterval(intervalColisions);
     alert("Game over!");
+    window.location.reload();
+  }
+}
+
+async function superarNivell() {
+  if (nivellFinalitzat) {
+    return;
+  }
+
+  nivellFinalitzat = true;
+  clearInterval(intervalColisions);
+
+  const durada = Math.round((Date.now() - iniciPartida) / 1000);
+  const dades = new URLSearchParams({
+    joc_id: gameConf.jocId,
+    nivell: gameConf.nivell,
+    puntuacio: jugador.punts,
+    durada: durada,
+  });
+
+  try {
+    const resposta = await fetch(progressUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: dades,
+    });
+    const resultat = await resposta.json();
+
+    if (!resultat.success) {
+      throw new Error(resultat.error ?? "No s'ha pogut desar el progrés");
+    }
+
+    if (resultat.completed) {
+      alert(`Has completat el joc! Punts: ${jugador.punts}`);
+      window.location.href = gamesListUrl;
+      return;
+    }
+
+    alert(`Nivell superat! Punts: ${jugador.punts}`);
+    window.location.reload();
+  } catch (e) {
+    console.error("No s'ha pogut desar el progrés:", e);
+    alert(`Nivell superat! Punts: ${jugador.punts}`);
     window.location.reload();
   }
 }
@@ -144,9 +199,8 @@ function detectarCollisions() {
   actualitzarInfo();
 
   if (jugador.punts >= gameConf.maxPunts) {
-    alert(`Nivell superat! Punts: ${jugador.punts}`);
-    window.location.reload();
+    superarNivell();
   }
 }
 
-setInterval(detectarCollisions, 100);
+const intervalColisions = setInterval(detectarCollisions, 100);
