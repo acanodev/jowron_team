@@ -26,7 +26,7 @@ const defaultConf = {
   "altJugador": 100,
   "maxVides": 3,
   "maxAsteroides": 100,
-  "velocitatAsteroides": 10,
+  "velocitatAsteroides": 2,
 };
 
 const loadedConf = (await getConfFromDB()) ?? {};
@@ -40,10 +40,13 @@ export const gameConf = {
   "velocitatEnemics": loadedConf.velocitatEnemics ?? defaultConf.velocitatEnemics,
   "maxEnemics": loadedConf.maxEnemics ?? defaultConf.maxEnemics,
   "maxVides": loadedConf.vides ?? defaultConf.maxVides,
+  "velocitatAsteroides": loadedConf.velocitatAsteroides ?? defaultConf.velocitatAsteroides,
 };
 
-gameConf["fotogramesEnemics"] = gameConf.velocitatEnemics * 10;
-gameConf["fotogramesAsteroides"] = gameConf.velocitatAsteroides * 10;
+const FPS_OBJECTES = 60;
+
+gameConf["fotogramesEnemics"] = 1000 / FPS_OBJECTES;
+gameConf["fotogramesAsteroides"] = 1000 / FPS_OBJECTES;
 
 async function getConfFromDB() {
   try {
