@@ -47,12 +47,14 @@ class UsuariModel
     // VULNERABILITAT: Exposició de dades sensibles
     public function obtenirRanking()
     {
-        $sql = "SELECT u.nom_usuari, u.email, u.nom_complet, 
-                       SUM(p.puntuacio_obtinguda) as puntuacio_total
-                FROM usuaris u 
-                LEFT JOIN partides p ON u.id = p.usuari_id 
-                GROUP BY u.id 
-                ORDER BY puntuacio_total DESC";
+        $sql = "SELECT u.avatar,
+                u.nom_usuari,
+                u.nom_complet,
+                COALESCE(SUM(p.puntuacio_obtinguda), 0) AS puntuacio_total
+        FROM usuaris u
+        LEFT JOIN partides p ON p.usuari_id = u.id
+        GROUP BY u.id, u.nom_usuari, u.nom_complet, u.avatar
+        ORDER BY puntuacio_total DESC";
 
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
