@@ -35,33 +35,18 @@ body {
 }
 
 #formulari-apostador {
-  display: flex;
+  display: inline-flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.2rem;
 }
 
-#formulari-apostador label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #cbd5e1;
-}
-
-#nom-apostador {
-  background-color: #0f172a;
-  border: 1px solid #475569;
-  color: #f8fafc;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  width: 250px;
-  outline: none;
-}
-
-#nom-apostador:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+#formulari-apostador select {
+  width: 200px;
+  padding: 5px;
+  text-align: center;
 }
 
 #controls {

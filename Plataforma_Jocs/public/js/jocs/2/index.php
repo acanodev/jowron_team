@@ -25,8 +25,14 @@ $nomJugador = $nomJugador ?? 'Jowron';
       <p>Prem el botó per avançar un torn. Es generarà un número aleatori entre 1 i 5 i s'afegirà una caixa a la columna del cavall corresponent. El primer que obtingui 5 caixes guanya la cursa.</p>
 
       <div id="formulari-apostador">
-        <label for="nom-apostador">Nom de l'apostador:</label>
-        <input type="text" id="nom-apostador" placeholder="Introdueix el teu nom" value="Apostador 1" />
+        <h2>Per quin cavall vols apostar?</h2>
+        <select name="cavall">
+          <option value="1">Cavall 1</option>
+          <option value="2">Cavall 2</option>
+          <option value="3">Cavall 3</option>
+          <option value="4">Cavall 4</option>
+          <option value="5">Cavall 5</option>
+        </select>
       </div>
 
       <div id="controls">
