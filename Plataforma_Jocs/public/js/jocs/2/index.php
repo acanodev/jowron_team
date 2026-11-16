@@ -26,7 +26,7 @@ $nomJugador = $nomJugador ?? 'Jowron';
 
       <div id="formulari-apostador">
         <h2>Per quin cavall vols apostar?</h2>
-        <select name="cavall">
+        <select name="cavall" id="cavall">
           <option value="1">Cavall 1</option>
           <option value="2">Cavall 2</option>
           <option value="3">Cavall 3</option>
