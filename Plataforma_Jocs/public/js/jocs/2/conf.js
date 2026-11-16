@@ -19,7 +19,9 @@ const loadedConf = (await getConfFromDB()) ?? {};
 
 export const gameConf = {
     ...defaultConf,
-    "nivell": defaultConf.nivell,
+    "jocId": jocId,
+    "totalNivells": totalNivells,
+    "nivell": loadedConf.nivell ?? nivellSolicitat,
     "puntsNivell": loadedConf.puntsNivell ?? defaultConf.puntsNivell
 };
 
