@@ -1,3 +1,8 @@
+import { gameConf } from "./conf.js";
+
+const appBaseUrl = new URL("../../../../", document.baseURI);
+const progressUrl = new URL("?route=/guardar-puntuacio", appBaseUrl).href;
+
 // =============================================================================
 // CURSA DE CAVALLS - CONTROL DEL DOM
 // =============================================================================
@@ -5,7 +10,7 @@
 // --- 1. SELECCIÓ D'ELEMENTS DEL DOM ---
 const botoAvancar = document.querySelector("#boto-avancar");
 const botoReiniciar = document.querySelector("#boto-reiniciar");
-const inputApostador = document.querySelector("#nom-apostador");
+const selectCavall = document.querySelector("#cavall");
 const missatgeEstat = document.querySelector("#missatge-estat");
 
 // --- 2. VARIABLES D'ESTAT DEL JOC ---
@@ -17,6 +22,15 @@ const posicionsCavalls = [0, 0, 0, 0, 0];
 
 // Indicador de si la cursa ha finalitzat
 let cursaFinalitzada = false;
+
+// Marca temporal d'inici de la cursa
+let iniciCursa = null;
+
+// Evita enviar la puntuació més d'una vegada per cursa
+let puntsEnviats = false;
+
+// Cavall pel qual ha apostat l'usuari, fixat en començar la cursa
+let cavallAposta = null;
 
 // =============================================================================
 // FUNCIÓ 1: afegirCaixa(numeroCavall)
@@ -49,10 +63,49 @@ function afegirCaixa(numeroCavall) {
 }
 
 // =============================================================================
+// FUNCIÓ 2: guardarPuntuacio(puntuacio)
+// =============================================================================
+// Envia la puntuació obtinguda al backend per sumar-la al progrés de l'usuari.
+async function guardarPuntuacio(puntuacio) {
+  if (puntsEnviats) {
+    return false;
+  }
+
+  puntsEnviats = true;
+
+  const durada = Math.round((Date.now() - iniciCursa) / 1000);
+  const dades = new URLSearchParams({
+    joc_id: gameConf.jocId,
+    nivell: gameConf.nivell,
+    puntuacio: puntuacio,
+    durada: durada,
+  });
+
+  try {
+    const resposta = await fetch(progressUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: dades,
+    });
+    const resultat = await resposta.json();
+
+    if (!resultat.success) {
+      throw new Error(resultat.error ?? "No s'ha pogut desar la puntuació");
+    }
+
+    return true;
+  } catch (e) {
+    console.error("No s'ha pogut desar la puntuació:", e);
+    puntsEnviats = false;
+    return false;
+  }
+}
+
+// =============================================================================
 // ESDEVENIMENT: Pulsació del botó "Avançar torn"
 // =============================================================================
 // Objectiu: Generar un cavall aleatori (de l'1 al 5), fer-lo avançar i comprovar si guanya.
-botoAvancar.addEventListener("click", () => {
+botoAvancar.addEventListener("click", async () => {
   // TODO: Implementa aquí la lògica del torn seguint aquests passos:
   //
   // Pas 1: Si la variable `cursaFinalitzada` és true, surt de la funció amb `return` per no continuar.
@@ -86,18 +139,37 @@ botoAvancar.addEventListener("click", () => {
     return;
   }
 
+  if (iniciCursa === null) {
+    iniciCursa = Date.now();
+    cavallAposta = parseInt(selectCavall.value);
+    selectCavall.disabled = true;
+  }
+
   const cavallAleatori = Math.floor(Math.random() * 5) + 1;
   const missatgeEstat = document.querySelector("#missatge-estat");
-  const inputNomApostador = document.querySelector("#nom-apostador");
-  const nomApostador = inputNomApostador.value;
-  
-  missatgeEstat.innerHTML = `Últim moviment: Cavall ${cavallAleatori} Apostador: ${nomApostador}`;
+
+  missatgeEstat.innerHTML = `Últim moviment: Cavall ${cavallAleatori} Apostador: ${gameConf.nomJugador}`;
 
   afegirCaixa(cavallAleatori);
   posicionsCavalls[cavallAleatori - 1]++;
   if (posicionsCavalls[cavallAleatori - 1] === 5) {
     cursaFinalitzada = true;
-    alert(`Ha guanyat el cavall: ${cavallAleatori}`);
+    botoAvancar.disabled = true;
+
+    if (cavallAleatori === cavallAposta) {
+      const punts = gameConf.puntsNivell;
+      const desat = await guardarPuntuacio(punts);
+
+      if (desat) {
+        missatgeEstat.innerHTML = `Cursa finalitzada! Has encertat el Cavall ${cavallAleatori} i has guanyat ${punts} punts!`;
+        alert(`Ha guanyat el cavall ${cavallAleatori}! Has sumat ${punts} punts.`);
+      } else {
+        missatgeEstat.innerHTML = `Cursa finalitzada! Has encertat el Cavall ${cavallAleatori}, però no s'ha pogut desar la puntuació.`;
+        alert(`Ha guanyat el cavall ${cavallAleatori}! No s'ha pogut desar la puntuació.`);
+      }
+    } else {
+      alert(`Ha guanyat el cavall: ${cavallAleatori}`);
+    }
   }
 });
 
@@ -119,6 +191,10 @@ botoReiniciar.addEventListener("click", () => {
   // Reactivem la cursa
   cursaFinalitzada = false;
   botoAvancar.disabled = false;
+  selectCavall.disabled = false;
+  puntsEnviats = false;
+  iniciCursa = null;
+  cavallAposta = null;
   missatgeEstat.textContent =
     "Cursa a punt per començar. Introdueix el teu nom i prem 'Avançar torn'.";
 });
