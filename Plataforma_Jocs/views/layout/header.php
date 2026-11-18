@@ -31,6 +31,12 @@ $urlTema = '?' . http_build_query(array_merge($_GET, ['tema' => $temaOposat]));
                 <a href="/mvc/?route=/jocs">Jocs</a>
                 <?php if (Session::isLoggedIn()): ?>
                     <a href="/mvc/?route=/ranking">Ranking</a>
+                    <a href="/mvc/?route=/amics">Amics</a>
+                    <a href="/mvc/?route=/estadistiques">Estadístiques</a>
+                    <a href="/mvc/?route=/badges">Assoliments</a>
+                    <?php if (Roles::potGestionarJocs()): ?>
+                        <a href="/mvc/?route=/gestio-jocs">Gestió jocs</a>
+                    <?php endif; ?>
                     <!-- VULNERABILITAT: XSS -->
                     <a class="menu-user" href="/mvc/?route=/perfil">Hola, <?= Session::get('nom_usuari') ?></a>
                     <a class="menu-cta menu-cta-outline" href="/mvc/?route=/logout">Sortir</a>

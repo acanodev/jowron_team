@@ -913,3 +913,79 @@ tbody tr:hover td {
     text-align: center;
   }
 }
+
+/* ---------- Ampliació: gestió de jocs, amics, estadístiques i assoliments ---------- */
+.text-muted { color: var(--text-muted); }
+.titol-accions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.auth-ample { max-width: 560px; }
+textarea, select {
+  width: 100%; padding: 9px 10px; background: var(--input-bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: 3px; font: inherit;
+}
+.form-group textarea { margin-bottom: 4px; }
+.label-inline { display: inline; margin-left: 6px; }
+.form-inline { display: inline-block; margin: 0 4px 0 0; }
+.btn-secundari {
+  display: inline-block; padding: 9px 16px; margin-left: 8px; border: 1px solid var(--border);
+  border-radius: 3px; color: var(--text); font-weight: 600;
+}
+.btn-secundari:hover { border-color: var(--accent); color: var(--accent); }
+.btn-petit {
+  display: inline-block; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer;
+  background: var(--surface); color: var(--accent); border: 1px solid var(--border); border-radius: 3px;
+}
+.btn-petit:hover { border-color: var(--accent); background: var(--surface-2); color: var(--accent-strong); }
+button.btn-petit[type="submit"] { background: var(--surface); color: var(--accent); }
+.btn-perill, button.btn-perill[type="submit"] { color: var(--error-text); border-color: var(--error-border); background: var(--error-bg); }
+.accions { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+td.accions { display: table-cell; white-space: nowrap; }
+.missatge-ok {
+  background: rgba(76, 195, 138, 0.15); color: #4cc38a; padding: 10px 14px; margin-bottom: 16px;
+  border: 1px solid rgba(76, 195, 138, 0.4); border-left: 4px solid #4cc38a; border-radius: 3px;
+}
+.badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; background: var(--surface); border: 1px solid var(--border); }
+.badge-ok { color: #4cc38a; border-color: #4cc38a; }
+.badge-off { color: var(--error-text); border-color: var(--error-text); }
+.badge-pend { color: #f0b429; border-color: #f0b429; }
+.joc-frame { width: 100%; height: 70vh; min-height: 420px; border: 1px solid var(--border); border-radius: 6px; background: #000; margin: 12px 0; }
+.fila-usuari { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.fila-usuari .accions { margin-left: auto; }
+.form-cerca { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.form-cerca input[type="text"] { flex: 1 1 220px; width: auto; padding: 9px 10px; background: var(--input-bg); color: var(--text); border: 1px solid var(--border); border-radius: 3px; }
+.form-cerca select { width: auto; }
+.targetes-resum { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.targeta-num { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 16px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+.targeta-num span { display: block; font-size: 24px; font-weight: 800; color: var(--accent); text-transform: none; margin-bottom: 4px; }
+.graelles-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 22px; }
+.grafic { min-height: 120px; }
+.svg-grafic { width: 100%; height: auto; max-height: 260px; }
+.svg-eix { fill: var(--text-muted); font-size: 11px; }
+.svg-valor { fill: var(--text); font-size: 11px; font-weight: 700; }
+.svg-total { fill: var(--text-strong); font-size: 26px; font-weight: 800; }
+.donut-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+.donut-wrap .svg-grafic { width: 180px; }
+.llegenda { list-style: none; padding: 0; margin: 0; }
+.llegenda li { margin: 6px 0; }
+.llegenda .punt { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; }
+
+/* Assoliments (badges) */
+.insignies { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+.insignia {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 700; color: var(--text);
+}
+.insignia-ok { border-color: #f0b429; }
+.insignia-icona { font-size: 20px; line-height: 1; }
+.insignies-grans { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+.insignies-grans .insignia {
+  flex-direction: column; align-items: flex-start; gap: 4px; padding: 16px; border-radius: 8px; text-align: left;
+}
+.insignies-grans .insignia-icona { font-size: 34px; margin-bottom: 4px; }
+.insignia-desc { font-weight: 400; color: var(--text-muted); font-size: 12px; }
+.insignia-joc { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .5px; }
+.insignia-data { font-size: 11px; font-weight: 400; color: var(--text-muted); }
+.insignia-bloquejada { opacity: .6; }
+.insignia-bloquejada .insignia-icona { filter: grayscale(1); }
+.barra-progres { width: 100%; height: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.barra-progres-petita { height: 6px; }
+.barra-progres-omplert { height: 100%; background: #f0b429; }

@@ -1,5 +1,6 @@
 <?php
 require_once 'config/database.php';
+require_once 'core/Roles.php';
 
 class UsuariModel
 {
@@ -30,8 +31,11 @@ class UsuariModel
         // Sense validació adequada
         $passwordHash = md5($password); // VULNERABILITAT: Hash feble
 
-        $sql = "INSERT INTO usuaris (nom_usuari, email, password_hash, nom_complet) 
-                VALUES ('$nomUsuari', '$email', '$passwordHash', '$nomComplet')";
+        // Tot usuari que es registra rep automàticament el rol "usuari" (desat en Base64)
+        $rol = Roles::codificar(Roles::USUARI);
+
+        $sql = "INSERT INTO usuaris (nom_usuari, email, password_hash, nom_complet, rol) 
+                VALUES ('$nomUsuari', '$email', '$passwordHash', '$nomComplet', '$rol')";
 
         return $this->pdo->exec($sql);
     }

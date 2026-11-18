@@ -1,6 +1,8 @@
 <?php
 require_once 'models/JocModel.php';
 require_once 'models/ProgressModel.php';
+require_once 'models/PartidaModel.php';
+require_once 'models/BadgeModel.php';
 require_once 'core/Session.php';
 
 class JocController
@@ -70,6 +72,13 @@ class JocController
         $totalNivells = max(1, (int) $joc['nivells_totals']);
         $nivell = max(1, min($nivell, $totalNivells));
 
+        // Els jocs poden informar d'una derrota amb resultat=derrota (estadístiques)
+        if (($_POST['resultat'] ?? 'victoria') === 'derrota') {
+            (new PartidaModel())->registrarDerrota($usuariId, $jocId, $nivell, max(0, $puntuacio), max(0, $durada));
+            echo json_encode(['success' => true, 'resultat' => 'derrota'] + $this->badgesNous($usuariId));
+            return;
+        }
+
         $resultat = $this->progressModel->registrarNivellSuperat(
             $usuariId,
             $jocId,
@@ -79,6 +88,22 @@ class JocController
             $totalNivells
         );
 
-        echo json_encode(['success' => true] + $resultat);
+        echo json_encode(['success' => true] + $resultat + $this->badgesNous($usuariId));
+    }
+
+    // Avalua els badges després de desar una partida. Retorna ['badgesNous' => [...]]
+    // (nom, descripció i icona de cada assoliment desbloquejat) perquè el joc ho pugui mostrar.
+    // Un error aquí no ha d'impedir que la partida quedi desada.
+    private function badgesNous($usuariId)
+    {
+        try {
+            $nous = (new BadgeModel())->avaluar($usuariId);
+        } catch (Throwable $e) {
+            error_log('[Badges] ' . $e->getMessage());
+            $nous = [];
+        }
+        return ['badgesNous' => array_map(fn($b) => [
+            'codi' => $b['codi'], 'nom' => $b['nom'], 'descripcio' => $b['descripcio'], 'icona' => $b['icona'],
+        ], $nous)];
     }
 }

@@ -28,6 +28,28 @@ class Session
         return self::get('usuari_id') !== null;
     }
 
+    // Redirigeix al login si no hi ha sessió (evita repetir el mateix bloc als controladors)
+    public static function requireLogin()
+    {
+        if (!self::isLoggedIn()) {
+            header("Location: /mvc/?route=/login");
+            exit;
+        }
+    }
+
+    // Missatges d'una sola lectura (flash) per mostrar-los després d'una redirecció
+    public static function flash($missatge = null, $tipus = 'ok')
+    {
+        self::start();
+        if ($missatge !== null) {
+            $_SESSION['flash'] = ['text' => $missatge, 'tipus' => $tipus];
+            return null;
+        }
+        $f = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+        return $f;
+    }
+
     // VULNERABILITAT: Logout insegur
     public static function logout()
     {
