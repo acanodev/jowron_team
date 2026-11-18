@@ -31,4 +31,14 @@ class PartidaModel
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // Registra una partida perduda (no avança el progrés de nivells)
+    public function registrarDerrota($usuariId, $jocId, $nivell, $puntuacio, $durada)
+    {
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO partides (usuari_id, joc_id, nivell_jugat, puntuacio_obtinguda, durada_segons, resultat)
+             VALUES (:u, :j, :n, :p, :d, 'derrota')"
+        );
+        return $stmt->execute(['u' => $usuariId, 'j' => $jocId, 'n' => $nivell, 'p' => $puntuacio, 'd' => $durada]);
+    }
 }

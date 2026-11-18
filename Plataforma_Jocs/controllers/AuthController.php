@@ -1,6 +1,7 @@
 <?php
 require_once 'models/UsuariModel.php';
 require_once 'core/Session.php';
+require_once 'core/Roles.php';
 
 class AuthController
 {
@@ -28,6 +29,9 @@ class AuthController
             if ($usuari) {
                 Session::set('usuari_id', $usuari['id']);
                 Session::set('nom_usuari', $usuari['nom_usuari']);
+
+                // Rol (Base64) llegit de la BD i enviat a la cookie "rol" (vegeu core/Roles.php)
+                Roles::establirCookie($usuari['rol'] ?? Roles::codificar(Roles::USUARI));
 
                 // VULNERABILITAT: Open Redirect
                 $redirect = $_GET['redirect'] ?? '/mvc/';
@@ -65,6 +69,7 @@ class AuthController
     public function logout()
     {
         Session::logout();
+        Roles::esborrarCookie();
         header("Location: /mvc/");
         exit;
     }

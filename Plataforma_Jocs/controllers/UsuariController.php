@@ -1,6 +1,7 @@
 <?php
 require_once 'models/UsuariModel.php';
 require_once 'models/PartidaModel.php';
+require_once 'models/BadgeModel.php';
 require_once 'core/Session.php';
 
 class UsuariController
@@ -31,6 +32,13 @@ class UsuariController
 
         // Obtenir partides de l'usuari
         $partides = $this->partidaModel->obtenirPartides($usuariId);
+
+        // Assoliments de l'usuari (si és el perfil propi, abans es recullen els pendents)
+        $badgeModel = new BadgeModel();
+        if ((int) $usuariId === (int) Session::get('usuari_id')) {
+            $badgeModel->avaluar($usuariId);
+        }
+        $badges = $badgeModel->obtingutsDetall((int) $usuariId);
 
         include 'views/usuari/perfil.php';
     }
