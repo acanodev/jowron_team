@@ -1,4 +1,3 @@
-
 <?php
 // mvc/views/usuari/perfil.php
 
@@ -10,6 +9,10 @@
  */
 
 require 'views/layout/header.php';
+
+// Estadístiques per a la capçalera del perfil
+$totalPartides = is_array($partides ?? null) ? count($partides) : 0;
+$millorPuntuacio = $totalPartides ? max(array_column($partides, 'puntuacio_obtinguda')) : 0;
 ?>
 
 <div class="perfil-container">
@@ -17,29 +20,59 @@ require 'views/layout/header.php';
     <h1>El meu perfil</h1>
 
     <!-- Dades personals -->
-    <section class="perfil-card">
+    <section class="perfil-card perfil-card-hero">
         <h2>Dades personals</h2>
 
-        <div class="dades-usuari">
-            <p>
-                <strong>Nom d'usuari:</strong>
-                <?php echo $usuari['nom_usuari']; ?>
-            </p>
+        <div class="perfil-banner"></div>
 
-            <p>
-                <strong>Nom complet:</strong>
-                <?php echo $usuari['nom_complet']; ?>
-            </p>
+        <div class="perfil-hero-body">
 
-            <p>
-                <strong>Correu electrònic:</strong>
-                <?php echo $usuari['email']; ?>
-            </p>
+            <div class="avatar-container">
+                <?php if (!empty($usuari['avatar'])): ?>
+                    <img class="perfil-avatar" src="../../<?php echo $usuari['avatar']; ?>" alt="Imatge de perfil">
+                <?php else: ?>
+                    <div class="avatar-placeholder"><?php echo substr($usuari['nom_usuari'], 0, 1); ?></div>
+                <?php endif; ?>
+            </div>
 
-            <p>
-                <strong>Data de registre:</strong>
-                <?php echo $usuari['data_registre']; ?>
-            </p>
+            <div class="perfil-info">
+                <h2 class="perfil-nom"><?php echo $usuari['nom_usuari']; ?></h2>
+                <p class="perfil-real"><?php echo $usuari['nom_complet']; ?></p>
+
+                <div class="dades-usuari">
+                    <div class="dada">
+                        <span class="dada-label">Nom d'usuari</span>
+                        <span class="dada-valor"><?php echo $usuari['nom_usuari']; ?></span>
+                    </div>
+
+                    <div class="dada">
+                        <span class="dada-label">Nom complet</span>
+                        <span class="dada-valor"><?php echo $usuari['nom_complet']; ?></span>
+                    </div>
+
+                    <div class="dada">
+                        <span class="dada-label">Correu electrònic</span>
+                        <span class="dada-valor"><?php echo $usuari['email']; ?></span>
+                    </div>
+
+                    <div class="dada">
+                        <span class="dada-label">Data de registre</span>
+                        <span class="dada-valor"><?php echo $usuari['data_registre']; ?></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="perfil-stats">
+                <div class="stat">
+                    <span class="stat-num"><?php echo $totalPartides; ?></span>
+                    <span class="stat-txt">Partides</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num"><?php echo $millorPuntuacio; ?></span>
+                    <span class="stat-txt">Millor punt.</span>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -78,15 +111,7 @@ require 'views/layout/header.php';
 
             <button type="submit">Desar canvis</button>
         </form>
-        
-        <div class="avatar-container">
-            <?php if (!empty($usuari['avatar'])): ?>
-                <h4>Imatge actual:</h4>
-                <img class="perfil-avatar" src="../../<?php echo $usuari['avatar']; ?>" alt="Imatge de perfil">
-            <?php else: ?>
-                <p>Sense imatge de perfil.</p>
-            <?php endif; ?>
-        </div>
+
     </section>
 
     <!-- Historial de partides -->
@@ -98,7 +123,6 @@ require 'views/layout/header.php';
                 <tr>
                     <th>Joc</th>
                     <th>Puntuació</th>
-                    <th>Durada (segons)</th>
                     <th>Data de la partida</th>
                 </tr>
             </thead>
@@ -110,7 +134,6 @@ require 'views/layout/header.php';
                         <tr>
                             <td><?php echo $partida['nom_joc']; ?></td>
                             <td><?php echo $partida['puntuacio_obtinguda']; ?></td>
-                            <td><?php echo $partida['durada_segons']; ?></td>
                             <td><?php echo $partida['data_partida']; ?></td>
                         </tr>
                     <?php endforeach; ?>
