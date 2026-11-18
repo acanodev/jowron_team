@@ -38,6 +38,7 @@ Vegeu `docs/LABORATORI_VULNERABILITATS.md` (vulnerabilitats V1, V2, V3, V5 i V6 
 
 ## Posada en marxa de la nova funcionalitat
 1. **Migració de la BD: automàtica.** `core/Migrator.php` crea sol les taules/columnes que falten (`amistats`, `badges`, `usuari_badges`, `partides.resultat`, `usuaris.rol`...) la primera vegada que la plataforma es connecta a la BD (MariaDB i MySQL). `database/novetats.sql` continua disponible per fer-ho a mà: `mariadb -u plataforma_user -p plataforma_videojocs < database/novetats.sql`
+   Els badges de **Snake Classic** (`database/snake_classic.sql`) també s'apliquen sols: el migrador els insereix en la primera connexió posterior a crear el joc a *Gestió jocs* amb el nom exacte "Snake Classic" (el SQL només cal executar-lo a mà si no vols esperar-ho).
 2. Assegurar que `public/js/jocs/` i `public/uploads/` són escrivibles per l'usuari del servidor web (p. ex. `chmod -R 777 public/js/jocs public/uploads`).
 3. `upload_max_filesize`/`post_max_size` de `php.ini` limiten la mida dels ZIP.
 

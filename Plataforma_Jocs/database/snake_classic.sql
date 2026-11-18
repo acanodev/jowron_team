@@ -4,6 +4,9 @@
 -- plataforma: "Per afegir-ne un de nou basta fer un INSERT a badges").
 -- NO crea taules, NO toca credencials ni l'esquema.
 --
+-- NOTA: aquests badges també els insereix automàticament core/Migrator.php
+-- (BADGES_PER_JOC) quan el joc existeix; aquest fitxer és l'alternativa manual.
+--
 -- PRERREQUISIT: el joc ja ha d'estar creat a "Gestió jocs" amb el nom exacte
 -- "Snake Classic" (el seu id el genera la BD; els badges l'enllacen per nom).
 -- És idempotent (INSERT IGNORE sobre uq_badge_codi). Ús:

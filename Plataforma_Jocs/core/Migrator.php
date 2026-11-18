@@ -59,6 +59,20 @@ class Migrator
         ['popular',          'Popular',             "Tingues 3 amics.",                                 '🎉', 'amics',             3,     null, 160],
     ];
 
+    // Badges de jocs concrets (equivalent a database/snake_classic.sql).
+    // Clau = nom EXACTE del joc a la taula `jocs`; l'id el genera la BD, per això
+    // s'enllacen per nom. Només s'insereixen quan el joc ja existeix a "Gestió jocs".
+    // Cada badge: [codi, nom, descripció, icona, tipus, llindar, ordre]
+    public const BADGES_PER_JOC = [
+        'Snake Classic' => [
+            ['snake_primera', 'Primera mossegada', 'Juga la teva primera partida de Snake.',   '🐍', 'partides',          1,   200],
+            ['snake_10_pomes', 'Gana de pomes',    'Menja 10 pomes en una partida de Snake.',  '🍎', 'puntuacio_partida', 10,  210],
+            ['snake_50',       'Mig centenar',     'Fes 50 punts en una partida de Snake.',    '⭐', 'puntuacio_partida', 50,  220],
+            ['snake_100',      'Centenari',        'Fes 100 punts en una partida de Snake.',   '🏆', 'puntuacio_partida', 100, 230],
+            ['snake_habitual', 'Serp habitual',    'Juga 10 partides de Snake.',               '🔁', 'partides',          10,  240],
+        ],
+    ];
+
     public static function assegurar(PDO $pdo)
     {
         if (self::$executat) {
@@ -69,10 +83,11 @@ class Migrator
         try {
             $columnesFaltants = self::columnesFaltants($pdo);
             $taulesFaltants = self::taulesFaltants($pdo);
-            if (!$columnesFaltants && !$taulesFaltants) {
-                return;
+            if ($columnesFaltants || $taulesFaltants) {
+                self::aplicar($pdo, $columnesFaltants, $taulesFaltants);
             }
-            self::aplicar($pdo, $columnesFaltants, $taulesFaltants);
+            // Badges d'altres jocs (Snake...): s'afegeixen sols quan el joc ja existeix
+            self::badgesDeJocs($pdo);
         } catch (Throwable $e) {
             error_log('[Migrator] No s\'ha pogut actualitzar l\'esquema: ' . $e->getMessage());
         }
@@ -219,6 +234,44 @@ class Migrator
                  (13, 3, 3, 1, 220, 80,  '2026-02-19 21:00:00', 'victoria'),
                  (14, 1, 1, 2, 520, 130, '2026-02-17 09:00:00', 'victoria'),
                  (15, 1, 2, 1, 150, 55,  '2026-02-18 09:30:00', 'derrota')");
+        }
+    }
+
+    // Insereix els badges de BADGES_PER_JOC dels jocs que ja existeixen i encara no
+    // els tenen. Idempotent: si tot hi és, només fa 1 consulta lleugera.
+    private static function badgesDeJocs(PDO $pdo)
+    {
+        foreach (self::BADGES_PER_JOC as $nomJoc => $badges) {
+            try {
+                $codis = array_map(static fn($b) => $b[0], $badges);
+                $marcadors = implode(',', array_fill(0, count($codis), '?'));
+
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM badges WHERE codi IN ($marcadors)");
+                $stmt->execute($codis);
+                if ((int) $stmt->fetchColumn() >= count($codis)) {
+                    continue; // ja estan tots
+                }
+
+                $stmt = $pdo->prepare("SELECT id FROM jocs WHERE nom_joc = ? ORDER BY id LIMIT 1");
+                $stmt->execute([$nomJoc]);
+                $jocId = $stmt->fetchColumn();
+                if ($jocId === false) {
+                    continue; // el joc encara no s'ha creat: es reintentarà a la propera connexió
+                }
+
+                $ins = $pdo->prepare(
+                    "INSERT IGNORE INTO badges (codi, nom, descripcio, icona, tipus, llindar, joc_id, ordre)
+                     VALUES (:codi, :nom, :descripcio, :icona, :tipus, :llindar, :joc, :ordre)"
+                );
+                foreach ($badges as $b) {
+                    $ins->execute([
+                        'codi' => $b[0], 'nom' => $b[1], 'descripcio' => $b[2], 'icona' => $b[3],
+                        'tipus' => $b[4], 'llindar' => $b[5], 'joc' => (int) $jocId, 'ordre' => $b[6],
+                    ]);
+                }
+            } catch (PDOException $e) {
+                error_log('[Migrator] badges de "' . $nomJoc . '": ' . $e->getMessage());
+            }
         }
     }
 
