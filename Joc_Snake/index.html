@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ca" data-theme="fosc">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Snake Classic</title>
+    <meta name="description" content="Joc retro classic de la serp. Menja les pomes per créixer sense xocar contra les parets." />
+    <link rel="stylesheet" href="./index.css" type="text/css" />
+  </head>
+  <body>
+    <div class="snake-app" id="app" data-estat="carregant">
+      <div class="banner-proves" id="bannerProves" hidden></div>
+
+      <section class="hud" aria-label="Estat de la partida">
+        <div class="hud-cel"><span class="hud-etiqueta">Punts</span><span class="hud-valor" id="hudPunts">0</span></div>
+        <div class="hud-cel"><span class="hud-etiqueta" id="hudRecordEtiqueta">Rècord</span><span class="hud-valor" id="hudRecord">0</span></div>
+        <div class="hud-cel"><span class="hud-etiqueta">Temps</span><span class="hud-valor" id="hudTemps">00:00</span></div>
+        <div class="hud-cel"><span class="hud-etiqueta">Nivell</span><span class="hud-valor" id="hudNivell">1</span></div>
+        <div class="hud-cel hud-cel-ample"><span class="hud-etiqueta">Jugador</span><span class="hud-valor hud-valor-text" id="hudJugador"></span></div>
+        <div class="hud-cel hud-cel-ample"><span class="hud-etiqueta">Estat</span><span class="hud-valor hud-valor-text" id="hudEstat" role="status" aria-live="polite">Carregant</span></div>
+      </section>
+
+      <div class="tauler-wrap" id="taulerWrap">
+        <canvas id="tauler" aria-label="Tauler de Snake"></canvas>
+        <div class="crt" aria-hidden="true"></div>
+        <div class="overlay" id="overlay"></div>
+      </div>
+
+      <div class="controls" role="group" aria-label="Controls de la partida">
+        <button type="button" class="btn-joc" id="btnIniciar">Iniciar</button>
+        <button type="button" class="btn-joc btn-sec" id="btnPausa" disabled>Pausa</button>
+        <button type="button" class="btn-joc btn-sec" id="btnReiniciar" disabled>Reiniciar</button>
+      </div>
+
+      <div class="dpad" id="dpad" aria-label="Controls tàctils">
+        <button type="button" class="dpad-btn dpad-amunt" data-dir="amunt" aria-label="Amunt">▲</button>
+        <button type="button" class="dpad-btn dpad-esquerra" data-dir="esquerra" aria-label="Esquerra">◀</button>
+        <button type="button" class="dpad-btn dpad-dreta" data-dir="dreta" aria-label="Dreta">▶</button>
+        <button type="button" class="dpad-btn dpad-avall" data-dir="avall" aria-label="Avall">▼</button>
+      </div>
+
+      <p class="ajuda">Fletxes o WASD per moure's · Espai: iniciar/pausa · R: reiniciar</p>
+
+      <details class="panell" id="panellPartides">
+        <summary>Les teves partides</summary>
+        <div id="panellContingut" class="panell-contingut">Carregant…</div>
+      </details>
+    </div>
+
+    <script src="./main.js" type="module"></script>
+  </body>
+</html>
