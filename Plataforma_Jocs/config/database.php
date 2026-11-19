@@ -35,6 +35,11 @@ class Database
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                     ]
                 );
+
+                // Crea sol les taules/columnes de l'ampliació si falten (vegeu core/Migrator.php)
+                require_once __DIR__ . '/../core/Migrator.php';
+                Migrator::assegurar($pdo);
+
                 return $pdo;
             } catch (PDOException $e) {
                 $lastException = $e;

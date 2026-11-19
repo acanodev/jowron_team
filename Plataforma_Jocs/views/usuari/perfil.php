@@ -6,6 +6,7 @@
  *
  * @var array $usuari
  * @var array $partides
+ * @var array $badges
  */
 
 require 'views/layout/header.php';
@@ -112,6 +113,26 @@ $millorPuntuacio = $totalPartides ? max(array_column($partides, 'puntuacio_obtin
             <button type="submit">Desar canvis</button>
         </form>
 
+    </section>
+
+    <!-- Assoliments (badges) -->
+    <section class="perfil-card">
+        <h2>Assoliments (<?= count($badges ?? []) ?>)</h2>
+
+        <?php if (empty($badges)): ?>
+            <p class="text-muted">Encara no tens cap assoliment. Juga una partida per començar a desbloquejar-ne!</p>
+        <?php else: ?>
+            <div class="insignies">
+                <?php foreach ($badges as $b): ?>
+                    <div class="insignia insignia-ok" title="<?= htmlspecialchars($b['descripcio']) ?>">
+                        <span class="insignia-icona"><?= htmlspecialchars($b['icona']) ?></span>
+                        <span class="insignia-nom"><?= htmlspecialchars($b['nom']) ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+
+        <p><a class="btn-petit" href="/mvc/?route=/badges">Veure tots els assoliments</a></p>
     </section>
 
     <!-- Historial de partides -->

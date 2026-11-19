@@ -144,6 +144,20 @@ function perdreVida() {
   }
 }
 
+/**
+ * Text amb els assoliments (badges) que el jugador acaba de desbloquejar.
+ * El servidor els retorna a `badgesNous` en desar la partida.
+ */
+function textBadges(badgesNous) {
+  if (!Array.isArray(badgesNous) || badgesNous.length === 0) {
+    return "";
+  }
+  return (
+    "\n\nNou assoliment!\n" +
+    badgesNous.map((b) => `${b.icona} ${b.nom} - ${b.descripcio}`).join("\n")
+  );
+}
+
 async function superarNivell() {
   if (nivellFinalitzat) {
     return;
@@ -173,12 +187,12 @@ async function superarNivell() {
     }
 
     if (resultat.completed) {
-      alert(`Has completat el joc! Punts: ${jugador.punts}`);
+      alert(`Has completat el joc! Punts: ${jugador.punts}${textBadges(resultat.badgesNous)}`);
       window.location.href = gamesListUrl;
       return;
     }
 
-    alert(`Nivell superat! Punts: ${jugador.punts}`);
+    alert(`Nivell superat! Punts: ${jugador.punts}${textBadges(resultat.badgesNous)}`);
     window.location.reload();
   } catch (e) {
     console.error("No s'ha pogut desar el progrés:", e);
