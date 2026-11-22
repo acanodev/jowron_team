@@ -153,6 +153,16 @@ class JocController
         json_send(['ok' => true, 'data' => $resposta, 'meta' => json_meta()] + $resposta);
     }
 
+    public function partides()
+    {
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401);
+        }
+
+        $partides = (new PartidaModel())->obtenirPartides(Session::get('usuari_id'));
+        json_ok(['partides' => $partides]);
+    }
+
     // Avalua els badges després de desar una partida. Retorna ['badgesNous' => [...]]
     // (nom, descripció i icona de cada assoliment desbloquejat) perquè el joc ho pugui mostrar.
     // Un error aquí no ha d'impedir que la partida quedi desada.

@@ -67,4 +67,14 @@ class AuthController
         Roles::esborrarCookie();
         json_ok([], ['redirect' => '/mvc/']);
     }
+
+    public function me()
+    {
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401);
+        }
+
+        $usuari = $this->usuariModel->obtenirUsuari(Session::get('usuari_id'));
+        json_ok(['usuari' => $usuari]);
+    }
 }

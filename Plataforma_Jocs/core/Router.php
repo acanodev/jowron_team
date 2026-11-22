@@ -14,6 +14,11 @@ class Router
         $this->routes['POST'][$path] = ['controller' => $controller, 'method' => $method];
     }
 
+    public function delete($path, $controller, $method)
+    {
+        $this->routes['DELETE'][$path] = ['controller' => $controller, 'method' => $method];
+    }
+
     public function view($path, $file)
     {
         $this->views[$path] = $file;
@@ -21,7 +26,7 @@ class Router
 
     private function volJson()
     {
-        if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'DELETE'], true)) {
+        if (defined('API_MODE') || in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'DELETE'], true)) {
             return true;
         }
         return str_contains(strtolower($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json')

@@ -102,4 +102,6 @@ $router->view('/gestio-jocs/nou', 'views/gestio_jocs/formulari.php');
 $router->view('/gestio-jocs/editar', 'views/gestio_jocs/formulari.php');
 
 // REP PETICIONS DE L'USUARI: Detecta el mètode HTTP i la ruta i redirigeix al controlador corresponent, sinó mostra un error.
-$router->dispatch();
+if (!defined('API_MODE')) {
+    $router->dispatch();
+}
