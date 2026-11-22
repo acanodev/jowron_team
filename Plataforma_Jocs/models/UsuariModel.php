@@ -1,6 +1,6 @@
 <?php
-require_once 'config/database.php';
-require_once 'core/Roles.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../core/Roles.php';
 
 class UsuariModel
 {
