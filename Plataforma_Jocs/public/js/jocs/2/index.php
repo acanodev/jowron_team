@@ -1,22 +1,13 @@
-<?php
-$jocId = $jocId ?? 2;
-$nivellActual = $nivellActual ?? 1;
-$totalNivells = $totalNivells ?? 1;
-$nomJugador = $nomJugador ?? 'Jowron';
-?>
 <!DOCTYPE html>
 <html lang="ca">
   <head>
     <meta charset="UTF-8" />
-    <meta name="game-joc-id" content="<?= (int) $jocId ?>">
-    <meta name="game-nivell" content="<?= (int) $nivellActual ?>">
-    <meta name="game-total-nivells" content="<?= (int) $totalNivells ?>">
-    <meta name="game-player-name" content="<?= htmlspecialchars($nomJugador, ENT_QUOTES, 'UTF-8') ?>">
+    <meta name="game-joc-id" content="">
+    <meta name="game-nivell" content="">
+    <meta name="game-total-nivells" content="">
+    <meta name="game-player-name" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cursa de Cavalls - Manipulació del DOM</title>
-    <?php if (!empty($gameBaseUrl)): ?>
-      <base href="<?= $gameBaseUrl ?>">
-    <?php endif; ?>
     <link rel="stylesheet" href="./index.css" />
   </head>
   <body>
@@ -45,31 +36,25 @@ $nomJugador = $nomJugador ?? 'Jowron';
     </header>
 
     <main id="pista-carrera">
-      <!-- Línia d'arribada -->
       <div id="linia-meta">META (5 posicions)</div>
 
-      <!-- Les 5 columnes que representen els carrils dels cavalls -->
       <div id="carrils-contenidor">
         <div class="carrer" id="carrer-1" data-cavall="1">
           <div class="zona-avanc"></div>
           <div class="etiqueta-cavall">Cavall 1</div>
         </div>
-
         <div class="carrer" id="carrer-2" data-cavall="2">
           <div class="zona-avanc"></div>
           <div class="etiqueta-cavall">Cavall 2</div>
         </div>
-
         <div class="carrer" id="carrer-3" data-cavall="3">
           <div class="zona-avanc"></div>
           <div class="etiqueta-cavall">Cavall 3</div>
         </div>
-
         <div class="carrer" id="carrer-4" data-cavall="4">
           <div class="zona-avanc"></div>
           <div class="etiqueta-cavall">Cavall 4</div>
         </div>
-
         <div class="carrer" id="carrer-5" data-cavall="5">
           <div class="zona-avanc"></div>
           <div class="etiqueta-cavall">Cavall 5</div>
@@ -77,6 +62,25 @@ $nomJugador = $nomJugador ?? 'Jowron';
       </div>
     </main>
 
-    <script src="./main.js" type="module"></script>
+    <script type="module">
+    const id = new URLSearchParams(location.search).get('joc_id') || '2';
+    const url = new URL('../../../../?route=/jugar&id=' + encodeURIComponent(id), location.href);
+    let dades = null;
+    try {
+      const res = await fetch(url.href, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+      dades = (await res.json()).data;
+    } catch (e) { }
+
+    document.querySelector('meta[name="game-joc-id"]').content = dades?.joc?.id || id;
+    document.querySelector('meta[name="game-nivell"]').content = dades?.nivellActual || 1;
+    document.querySelector('meta[name="game-total-nivells"]').content = dades?.totalNivells || 1;
+    document.querySelector('meta[name="game-player-name"]').content = dades?.nomJugador || 'Jowron';
+
+    const base = document.createElement('base');
+    base.href = dades?.gameBaseUrl || new URL('./', location.href).href;
+    document.head.prepend(base);
+
+    await import('./main.js');
+    </script>
   </body>
 </html>

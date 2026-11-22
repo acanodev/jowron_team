@@ -1,10 +1,10 @@
 <?php
-require_once 'models/AmistatModel.php';
-require_once 'models/UsuariModel.php';
-require_once 'models/PartidaModel.php';
-require_once 'models/EstadistiquesModel.php';
-require_once 'models/BadgeModel.php';
-require_once 'core/Session.php';
+require_once __DIR__ . '/../models/AmistatModel.php';
+require_once __DIR__ . '/../models/UsuariModel.php';
+require_once __DIR__ . '/../models/PartidaModel.php';
+require_once __DIR__ . '/../models/EstadistiquesModel.php';
+require_once __DIR__ . '/../models/BadgeModel.php';
+require_once __DIR__ . '/../core/Session.php';
 
 /**
  * Sistema d'amics: cerca, sol·licituds, llista, perfil d'altres usuaris.
@@ -24,7 +24,9 @@ class AmicsController
 
     public function index()
     {
-        Session::requireLogin();
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401, [], ['redirect' => '/mvc/?route=/login']);
+        }
         $jo = (int) Session::get('usuari_id');
 
         $cerca = trim($_GET['q'] ?? '');
@@ -40,17 +42,25 @@ class AmicsController
         $amics = $this->amistats->obtenirAmics($jo);
         $rebudes = $this->amistats->obtenirPendentsRebudes($jo);
         $enviades = $this->amistats->obtenirEnviades($jo);
-        $flash = Session::flash();
 
-        include 'views/amics/index.php';
+        json_ok([
+            'cerca' => $cerca,
+            'resultats' => $resultats,
+            'amics' => $amics,
+            'rebudes' => $rebudes,
+            'enviades' => $enviades,
+        ]);
     }
 
     public function solicitar()
     {
-        Session::requireLogin();
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401, [], ['redirect' => '/mvc/?route=/login']);
+        }
         $jo = (int) Session::get('usuari_id');
+        $dades = json_input();
 
-        $codi = $this->amistats->enviarSolicitud($jo, (int) ($_POST['receptor_id'] ?? 0));
+        $codi = $this->amistats->enviarSolicitud($jo, (int) ($dades['receptor_id'] ?? 0));
         $missatges = [
             'jo_mateix' => "No et pots afegir a tu mateix.",
             'ja_amics' => "Ja sou amics.",
@@ -63,16 +73,18 @@ class AmicsController
             Session::flash("Sol·licitud d'amistat enviada.");
         }
 
-        header("Location: " . $this->tornarA('/amics'));
-        exit;
+        json_ok([], ['redirect' => $this->tornarA('/amics')]);
     }
 
     // VULNERABILITAT V3 (IDOR): $_POST['id'] pot ser d'una sol·licitud d'un altre usuari
     public function respondre()
     {
-        Session::requireLogin();
-        $id = (int) ($_POST['id'] ?? 0);
-        $accio = $_POST['accio'] ?? '';
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401, [], ['redirect' => '/mvc/?route=/login']);
+        }
+        $dades = json_input();
+        $id = (int) ($dades['id'] ?? 0);
+        $accio = $dades['accio'] ?? '';
 
         if (!in_array($accio, ['acceptar', 'rebutjar'], true)) {
             Session::flash('Acció no vàlida.', 'error');
@@ -85,15 +97,17 @@ class AmicsController
             }
         }
 
-        header("Location: /mvc/?route=/amics");
-        exit;
+        json_ok([], ['redirect' => '/mvc/?route=/amics']);
     }
 
     // VULNERABILITAT V3 (IDOR): $_POST['id'] pot ser d'una amistat aliena
     public function eliminar()
     {
-        Session::requireLogin();
-        $id = (int) ($_POST['id'] ?? 0);
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401, [], ['redirect' => '/mvc/?route=/login']);
+        }
+        $dades = json_input();
+        $id = (int) ($dades['id'] ?? 0);
 
         if (!$this->amistats->eliminar($id)) {
             Session::flash("No s'ha trobat l'amistat.", 'error');
@@ -101,32 +115,37 @@ class AmicsController
             Session::flash('Amistat eliminada.');
         }
 
-        header("Location: /mvc/?route=/amics");
-        exit;
+        json_ok([], ['redirect' => '/mvc/?route=/amics']);
     }
 
-    // Perfil públic d'un altre usuari (sense email ni dades privades)
     public function perfilPublic()
     {
-        Session::requireLogin();
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401, [], ['redirect' => '/mvc/?route=/login']);
+        }
         $jo = (int) Session::get('usuari_id');
         $id = (int) ($_GET['id'] ?? 0);
 
         $usuari = (new UsuariModel())->obtenirUsuari($id);
         if (!$usuari) {
-            die("Usuari no trobat");
+            json_error('Usuari no trobat', 404);
         }
 
         $resum = (new EstadistiquesModel())->resum($id);
         $partides = array_slice((new PartidaModel())->obtenirPartides($id), 0, 5);
         $relacio = ($id !== $jo) ? $this->amistats->obtenirRelacio($jo, $id) : false;
         $badges = (new BadgeModel())->obtingutsDetall($id);
-        $flash = Session::flash();
 
-        include 'views/amics/perfil_public.php';
+        json_ok([
+            'jo' => $jo,
+            'usuari' => $usuari,
+            'relacio' => $relacio,
+            'resum' => $resum,
+            'partides' => $partides,
+            'badges' => $badges,
+        ]);
     }
 
-    // Una amistat acceptada pot desbloquejar badges ("Sociable", "Popular") als dos usuaris
     private function avaluarBadgesAmistat($amistatId)
     {
         try {
@@ -141,10 +160,10 @@ class AmicsController
         }
     }
 
-    // Només es permeten redireccions internes a /mvc/?route=...
     private function tornarA($per_defecte)
     {
-        $ruta = $_POST['tornar'] ?? $per_defecte;
+        $dades = json_input();
+        $ruta = $dades['tornar'] ?? $per_defecte;
         if (strpos($ruta, '/') !== 0 || strpos($ruta, '//') === 0) {
             $ruta = $per_defecte;
         }

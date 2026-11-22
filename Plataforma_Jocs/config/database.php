@@ -4,8 +4,8 @@ class Database
 {
     private static $host = 'localhost';
     private static $dbname = 'plataforma_videojocs';
-    private static $username = 'plataforma_user';
-    private static $password = '123456789a';
+    private static $username = 'root';
+    private static $password = 'root';
 
     public static function getConnection()
     {

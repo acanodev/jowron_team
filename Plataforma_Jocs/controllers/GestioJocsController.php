@@ -1,8 +1,8 @@
 <?php
-require_once 'models/JocModel.php';
-require_once 'core/GameUploader.php';
-require_once 'core/Session.php';
-require_once 'core/Roles.php';
+require_once __DIR__ . '/../models/JocModel.php';
+require_once __DIR__ . '/../core/GameUploader.php';
+require_once __DIR__ . '/../core/Session.php';
+require_once __DIR__ . '/../core/Roles.php';
 
 /**
  * CRUD de jocs. Accés: rol "admin" (tots els jocs) o "developer" (només els seus).
@@ -21,19 +21,16 @@ class GestioJocsController
         $this->jocModel = new JocModel();
     }
 
-    // Exigeix sessió i rol admin/developer. Sense sessió -> login; sense rol -> 403.
     private function requerirGestor()
     {
-        Session::requireLogin();
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401, [], ['redirect' => '/mvc/?route=/login']);
+        }
         if (!Roles::potGestionarJocs()) {
-            http_response_code(403);
-            $error = 'Accés denegat: aquesta secció és només per a desenvolupadors i administradors.';
-            include 'views/gestio_jocs/denegat.php';
-            exit;
+            json_error('Accés denegat: aquesta secció és només per a desenvolupadors i administradors.', 403);
         }
     }
 
-    // Admin: qualsevol joc. Developer: només si és el propietari.
     private function potModificar($joc)
     {
         if (Roles::esAdmin()) {
@@ -43,36 +40,31 @@ class GestioJocsController
             && (int) $joc['developer_id'] === (int) Session::get('usuari_id');
     }
 
-    // Carrega un joc i comprova que l'usuari el pot modificar (404 / 403)
     private function carregarJocPropi($id)
     {
         $joc = $this->jocModel->obtenirJoc((int) $id);
         if (!$joc) {
-            Session::flash("Joc no trobat.", 'error');
-            header("Location: /mvc/?route=/gestio-jocs");
-            exit;
+            Session::flash('Joc no trobat.', 'error');
+            json_error('Joc no trobat', 404);
         }
         if (!$this->potModificar($joc)) {
-            http_response_code(403);
-            $error = 'No tens permís per modificar aquest joc.';
-            include 'views/gestio_jocs/denegat.php';
-            exit;
+            json_error('No tens permís per modificar aquest joc.', 403);
         }
         return $joc;
     }
 
     private function llegirCamps()
     {
+        $dades = json_input();
         return [
-            'nom' => trim($_POST['nom_joc'] ?? ''),
-            'descripcio' => trim($_POST['descripcio'] ?? ''),
-            'puntuacio' => max(0, (int) ($_POST['puntuacio_maxima'] ?? 0)),
-            'nivells' => max(1, (int) ($_POST['nivells_totals'] ?? 1)),
-            'actiu' => isset($_POST['actiu']) ? 1 : 0,
+            'nom' => trim($dades['nom_joc'] ?? ''),
+            'descripcio' => trim($dades['descripcio'] ?? ''),
+            'puntuacio' => max(0, (int) ($dades['puntuacio_maxima'] ?? 0)),
+            'nivells' => max(1, (int) ($dades['nivells_totals'] ?? 1)),
+            'actiu' => isset($dades['actiu']) ? 1 : 0,
         ];
     }
 
-    // Camps rebuts, per tornar-los al formulari quan hi ha un error de validació
     private function campsDeVolta(array $camps)
     {
         return [
@@ -89,25 +81,19 @@ class GestioJocsController
         return $_FILES['zip'];
     }
 
-    // READ: llistat
     public function llista()
     {
         $this->requerirGestor();
         $jocs = $this->jocModel->obtenirJocsGestio(Session::get('usuari_id'), Roles::esAdmin());
-        $flash = Session::flash();
-        include 'views/gestio_jocs/llista.php';
+        json_ok(['jocs' => $jocs]);
     }
 
-    // CREATE: formulari
     public function nou()
     {
         $this->requerirGestor();
-        $joc = null;
-        $error = null;
-        include 'views/gestio_jocs/formulari.php';
+        json_ok(['joc' => null, 'error' => null]);
     }
 
-    // CREATE: processa el formulari + ZIP
     public function crear()
     {
         $this->requerirGestor();
@@ -123,48 +109,38 @@ class GestioJocsController
             $error = 'El fitxer ha de tenir extensió .zip.';
         }
         if ($error) {
-            $joc = $this->campsDeVolta($camps);
-            include 'views/gestio_jocs/formulari.php';
-            return;
+            json_error($error, 422, ['joc' => $this->campsDeVolta($camps)]);
         }
 
-        // 1. Es crea el joc i s'obté el seu identificador únic autogenerat
         $id = $this->jocModel->crearJoc(
             $camps['nom'], $camps['descripcio'], $camps['puntuacio'], $camps['nivells'], $camps['actiu'],
             Session::get('usuari_id')
         );
 
-        // 2-6. Directori public/js/jocs/<id>/, extracció del ZIP i localització de l'index.html
         try {
             $this->jocModel->establirRutaIndex($id, GameUploader::desplegar($zip['tmp_name'], $id));
         } catch (Exception $e) {
             GameUploader::eliminar($id);
             $this->jocModel->eliminarJoc($id);
-            $error = $e->getMessage();
-            $joc = $this->campsDeVolta($camps);
-            include 'views/gestio_jocs/formulari.php';
-            return;
+            json_error($e->getMessage(), 422, ['joc' => $this->campsDeVolta($camps)]);
         }
 
         Session::flash('Joc "' . $camps['nom'] . "\" publicat correctament (id $id).");
-        header("Location: /mvc/?route=/gestio-jocs");
-        exit;
+        json_ok([], ['redirect' => '/mvc/?route=/gestio-jocs']);
     }
 
-    // UPDATE: formulari
     public function editar()
     {
         $this->requerirGestor();
         $joc = $this->carregarJocPropi($_GET['id'] ?? 0);
-        $error = null;
-        include 'views/gestio_jocs/formulari.php';
+        json_ok(['joc' => $joc, 'error' => null]);
     }
 
-    // UPDATE: processa (opcionalment substitueix el ZIP)
     public function actualitzar()
     {
         $this->requerirGestor();
-        $joc = $this->carregarJocPropi($_POST['id'] ?? 0);
+        $dades = json_input();
+        $joc = $this->carregarJocPropi($dades['id'] ?? 0);
         $camps = $this->llegirCamps();
         $zip = $this->zipPujat();
 
@@ -177,24 +153,17 @@ class GestioJocsController
             $error = 'El fitxer ha de tenir extensió .zip.';
         }
         if ($error) {
-            $joc = array_merge($joc, $this->campsDeVolta($camps));
-            include 'views/gestio_jocs/formulari.php';
-            return;
+            json_error($error, 422, ['joc' => array_merge($joc, $this->campsDeVolta($camps))]);
         }
 
         if ($zip !== null) {
-            // Si el joc ja era un ZIP, es substitueix el seu directori. Els jocs de la
-            // plataforma (ruta_index NULL, p.ex. el joc 1) no s'esborren: s'hi extreu per sobre.
             if (!empty($joc['ruta_index'])) {
                 GameUploader::eliminar($joc['id']);
             }
             try {
                 $this->jocModel->establirRutaIndex($joc['id'], GameUploader::desplegar($zip['tmp_name'], $joc['id']));
             } catch (Exception $e) {
-                $error = $e->getMessage();
-                $joc = array_merge($joc, $this->campsDeVolta($camps));
-                include 'views/gestio_jocs/formulari.php';
-                return;
+                json_error($e->getMessage(), 422, ['joc' => array_merge($joc, $this->campsDeVolta($camps))]);
             }
         }
 
@@ -202,15 +171,14 @@ class GestioJocsController
             $joc['id'], $camps['nom'], $camps['descripcio'], $camps['puntuacio'], $camps['nivells'], $camps['actiu']
         );
         Session::flash('Joc actualitzat correctament.');
-        header("Location: /mvc/?route=/gestio-jocs");
-        exit;
+        json_ok([], ['redirect' => '/mvc/?route=/gestio-jocs']);
     }
 
-    // DELETE
     public function eliminar()
     {
         $this->requerirGestor();
-        $joc = $this->carregarJocPropi($_POST['id'] ?? 0);
+        $dades = json_input();
+        $joc = $this->carregarJocPropi($dades['id'] ?? 0);
 
         if (!empty($joc['ruta_index'])) {
             GameUploader::eliminar($joc['id']);
@@ -218,7 +186,6 @@ class GestioJocsController
         $this->jocModel->eliminarJoc($joc['id']);
 
         Session::flash('Joc "' . $joc['nom_joc'] . '" eliminat.');
-        header("Location: /mvc/?route=/gestio-jocs");
-        exit;
+        json_ok([], ['redirect' => '/mvc/?route=/gestio-jocs']);
     }
 }
