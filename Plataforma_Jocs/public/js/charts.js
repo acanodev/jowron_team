@@ -107,12 +107,16 @@
     cont.appendChild(wrap);
   }
 
-  document.querySelectorAll('.grafic').forEach(function (cont) {
-    var dades = [];
-    try { dades = JSON.parse(cont.getAttribute('data-dades') || '[]'); } catch (e) { }
-    cont.textContent = '';
-    if (!dades.length) { return buit(cont); }
-    var t = cont.getAttribute('data-tipus');
-    (t === 'linia' ? linia : t === 'donut' ? donut : barres)(cont, dades);
-  });
+  window.renderGrafics = function () {
+    document.querySelectorAll('.grafic').forEach(function (cont) {
+      var dades = [];
+      try { dades = JSON.parse(cont.getAttribute('data-dades') || '[]'); } catch (e) { }
+      cont.textContent = '';
+      if (!dades.length) { return buit(cont); }
+      var t = cont.getAttribute('data-tipus');
+      (t === 'linia' ? linia : t === 'donut' ? donut : barres)(cont, dades);
+    });
+  };
+
+  window.renderGrafics();
 })();

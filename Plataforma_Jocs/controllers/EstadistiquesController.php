@@ -1,9 +1,9 @@
 <?php
-require_once 'models/EstadistiquesModel.php';
-require_once 'models/UsuariModel.php';
-require_once 'models/AmistatModel.php';
-require_once 'models/BadgeModel.php';
-require_once 'core/Session.php';
+require_once __DIR__ . '/../models/EstadistiquesModel.php';
+require_once __DIR__ . '/../models/UsuariModel.php';
+require_once __DIR__ . '/../models/AmistatModel.php';
+require_once __DIR__ . '/../models/BadgeModel.php';
+require_once __DIR__ . '/../core/Session.php';
 
 /**
  * Estadístiques avançades amb gràfics.
@@ -17,7 +17,9 @@ class EstadistiquesController
 {
     public function index()
     {
-        Session::requireLogin();
+        if (!Session::isLoggedIn()) {
+            json_error('Cal iniciar sessió', 401, [], ['redirect' => '/mvc/?route=/login']);
+        }
         $jo = (int) Session::get('usuari_id');
 
         // VULNERABILITAT V6: no es comprova que $usuariId sigui l'usuari autenticat
@@ -28,7 +30,7 @@ class EstadistiquesController
 
         $usuari = $usuaris->obtenirUsuari($usuariId);
         if (!$usuari) {
-            die("Usuari no trobat");
+            json_error('Usuari no trobat', 404);
         }
 
         $esMeu = ($usuariId === $jo);
@@ -44,7 +46,6 @@ class EstadistiquesController
             // VULNERABILITAT V5: $cerca arriba sense filtrar a la consulta SQL
             $historial = $estadistiques->historial($usuariId, $cerca, $ordre);
         } catch (PDOException $e) {
-            // Es mostra l'error SQL tal qual (exposició d'informació, laboratori)
             $errorSql = $e->getMessage();
         }
 
@@ -55,6 +56,38 @@ class EstadistiquesController
         $comparativa = $estadistiques->comparativa($idsComparar);
         $numBadges = count((new BadgeModel())->obtingutsDetall($usuariId));
 
-        include 'views/estadistiques/index.php';
+        json_ok([
+            'usuari' => $usuari,
+            'usuariId' => $usuariId,
+            'esMeu' => $esMeu,
+            'resum' => $resum,
+            'cerca' => $cerca,
+            'ordre' => $ordre,
+            'jocsMesJugats' => $jocsMesJugats,
+            'evolucio' => $evolucio,
+            'ranking' => $ranking,
+            'comparativa' => $comparativa,
+            'historial' => $historial,
+            'errorSql' => $errorSql,
+            'numBadges' => $numBadges,
+            'datasets' => [
+                'victoriesDerrotes' => [
+                    ['etiqueta' => 'Victòries', 'valor' => (int) $resum['victories'], 'color' => '#4cc38a'],
+                    ['etiqueta' => 'Derrotes', 'valor' => (int) $resum['derrotes'], 'color' => '#fa5c5c'],
+                ],
+                'jocsMesJugats' => array_map(fn($r) => [
+                    'etiqueta' => $r['nom_joc'], 'valor' => (int) $r['partides'],
+                ], $jocsMesJugats),
+                'evolucio' => array_map(fn($r) => [
+                    'etiqueta' => substr($r['data_partida'], 5, 5), 'valor' => (int) $r['puntuacio_obtinguda'],
+                ], $evolucio),
+                'ranking' => array_map(fn($r) => [
+                    'etiqueta' => $r['nom_usuari'], 'valor' => (int) $r['puntuacio_total'],
+                ], $ranking),
+                'comparativa' => array_map(fn($r) => [
+                    'etiqueta' => $r['nom_usuari'], 'valor' => (int) $r['puntuacio_total'],
+                ], $comparativa),
+            ],
+        ]);
     }
 }

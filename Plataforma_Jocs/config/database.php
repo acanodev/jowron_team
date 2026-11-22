@@ -4,11 +4,14 @@ class Database
 {
     private static $host = 'localhost';
     private static $dbname = 'plataforma_videojocs';
-    private static $username = 'plataforma_user';
-    private static $password = '123456789a';
+    private static $username = 'root';
+    private static $password = 'root';
 
     public static function getConnection()
     {
+        self::$username = 'root';
+        self::$password = getenv('DB_PASSWORD') ?: getenv('DB_ROOT_PASSWORD') ?: 'root';
+
         // Llista d'amfitrions a provar per garantir compatibilitat multi-SO (socket UNIX o TCP 'db'/'IP_DE_LA_VM')
         $hostsToTry = array_unique([
             self::$host,
